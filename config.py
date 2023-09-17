@@ -21,3 +21,7 @@ SQL_FILTER_STRING = "-","and","exec","insert","select","delete","update","count"
 ##
 # SET SESSION group_concat_max_len = 1000000;
 GROUP_CONCAT_MAX_LEN = 1000000
+
+
+##B-tree search node heigh
+B_TREE_SEARCH_NODE_HEIGH = 17
