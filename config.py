@@ -25,3 +25,6 @@ GROUP_CONCAT_MAX_LEN = 1000000
 
 ##B-tree search node heigh
 B_TREE_SEARCH_NODE_HEIGH = 17
+
+##
+MONOGODB_CONFIG_URL = "mongodb+srv://wylinze:<password>@cluster0.mb1k6gd.mongodb.net/?retryWrites=true&w=majority"
