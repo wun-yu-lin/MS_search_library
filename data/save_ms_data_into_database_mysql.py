@@ -56,6 +56,54 @@ def insert_ms_data_into_database(mz, rt):
     mysql_str = "insert into ms_data (mz, rt) values (%s, %s)"
 
     try:
+        cursor.execute(mysql_str, (mz, rt,))
+        mysql_connection.commit()
+        print("insert ms_data success")
+    except Exception as err:
+        print(err)
+        results= errorhandling.handle_error({"code": 400, "message": "MySQL Server error"}), 400
+    finally:
+        if mysql_connection.in_transaction:
+            mysql_connection.rollback()
+        cursor.close()
+        mysql_connection.close()
+
+    return True
+
+def insert_ms_data_into_ms_data_index(mz, rt):
+
+    mysql_connection = get_mysql_connection_from_pool(mysql_connection_pool)
+    cursor = mysql_connection.cursor(dictionary=True)
+
+
+    
+    mysql_str = "insert into ms_data_index (mz, rt) values (%s, %s)"
+
+    try:
+        
+        cursor.execute(mysql_str, (mz, rt,))
+        mysql_connection.commit()
+        print("insert ms_data success")
+    except Exception as err:
+        print(err)
+        results= errorhandling.handle_error({"code": 400, "message": "MySQL Server error"}), 400
+    finally:
+        if mysql_connection.in_transaction:
+            mysql_connection.rollback()
+        cursor.close()
+        mysql_connection.close()
+
+    return True
+def insert_ms_data_into_ms_data_unique_index(mz, rt):
+
+    mysql_connection = get_mysql_connection_from_pool(mysql_connection_pool)
+    cursor = mysql_connection.cursor(dictionary=True)
+
+
+    
+    mysql_str = "insert into ms_data_unique_index (mz, rt) values (%s, %s)"
+
+    try:
         
         cursor.execute(mysql_str, (mz, rt,))
         mysql_connection.commit()
@@ -72,9 +120,10 @@ def insert_ms_data_into_database(mz, rt):
     return True
 
 
+# import numpy as np
+# arr = np.random.randint(0, 5000, size=2000000)
 
-import numpy as np
-arr = np.random.randint(0, 5000, size=20000000)
-
-for item in arr:
+for item in range(0,2000000):
     insert_ms_data_into_database(mz=float(item), rt=float(item))
+    insert_ms_data_into_ms_data_index(mz=float(item), rt=float(item))
+    insert_ms_data_into_ms_data_unique_index(mz=float(item), rt=float(item))
