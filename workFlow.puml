@@ -1,0 +1,87 @@
+@startuml Converter CLI
+' queue  "AWS SQS"  as queue order 20
+box "local client" #LightSalmon
+actor "client" as client order 10
+end box
+
+box "storage plaform" #SkyBlue
+database "MySQL" as mysql_database order 50
+database "NoSQL_mongoDB" as mongodb_database order 50
+end box
+
+box "AWS EC2" #LightGray
+participant "API Flask Server" as api_flask_server order 30
+participant "nginx" as nginx order 20  #99FF99
+participant "crontab" as crontab order 35
+queue "quene" as quene order 35 #99FF99
+participant "Redis" as redis order 40 #IndianRed
+end box
+
+
+
+
+autonumber
+client <-> nginx ++ #gold: request/response
+nginx <-> api_flask_server: request/response
+api_flask_server <-> redis ++ #gold: load/read cache
+api_flask_server <-> mysql_database: query data / write data
+api_flask_server -> redis: save cache
+
+
+'ms search
+client -[#SeaGreen]> nginx: ms_spectrun_search 
+nginx -[#SeaGreen]> api_flask_server: ms_spectrum_search, preparation/convert query data
+api_flask_server -[#SeaGreen]> redis: ask cache, if no cache
+api_flask_server <-[#SeaGreen]> mysql_database: query ms_data, and join with chemical data
+api_flask_server -[#SeaGreen]> redis: save cache
+api_flask_server -[#SeaGreen]> client: return ms_data
+
+
+' ms/ms_search need test
+client -[#0000FF]> nginx: ms/ms_spectrum_search
+nginx -[#0000FF]> api_flask_server: ms/ms_spectrum_search, preparation/convert query data (float, 2d array)
+api_flask_server -[#0000FF]> redis: ask cache, if no cache
+api_flask_server -[#0000FF]> mysql_database: query ms_data, join with spectrum table
+mysql_database -[#0000FF]> api_flask_server: return spectrum data, using python array matching
+api_flask_server <-[#0000FF]> mysql_database: query chemcial data by id
+api_flask_server -[#0000FF]> client: return search results to client
+
+' ms/ms_search need test
+client -[#0000FF]> nginx: ms/ms_spectrum_search
+nginx -[#0000FF]> api_flask_server: ms/ms_spectrum_search, preparation/convert query data (float, 2d array)
+api_flask_server -[#0000FF]> redis: ask cache, if no cache
+api_flask_server -[#0000FF]> mysql_database: query ms_data, join with spectrum table
+api_flask_server -[#0000FF]> mongodb_database: query spectum data by ID (index)
+mongodb_database -[#0000FF]> api_flask_server: return spectrum data, using python array matching
+api_flask_server <-[#0000FF]> mysql_database: query chemcial data by id
+api_flask_server -[#0000FF]> client: return search results to client
+
+
+' batch search 
+client -[#Red]> nginx: saerch, batch search
+nginx -[#Red]> api_flask_server: ms/ms_spectrum_search, preparation/convert query data (ms1 table, 3d array[dataList, msms, intensity]
+api_flask_server-[#Red]> quene: Add into quene 
+quene -[#Red]> crontab: add into crowtab
+api_flask_server -[#Red]> mysql_database: create user task job
+quene -[#Red]> mysql_database: keep update process progress
+quene -[#red]> mysql_database: If task finish, create finish data into database
+
+client -[#Green]> nginx: Check task status, ask cache
+nginx -[#Green]> api_flask_server: task check request
+api_flask_server -[#Green]> mysql_database: get task status, and task data
+mysql_database -[#Green]> api_flask_server: return task data
+api_flask_server -[#Green]> client: return task status data
+
+
+
+
+
+
+
+
+
+
+' python_cli -[#0000FF]> local_storage: Save Progress Number to /tmp folder
+' go_cli -> api_server: Upload Convert Progress
+' python_cli -[#0000FF]> local_storage: Save output.zip and dataset.yml to /tmp
+@enduml
