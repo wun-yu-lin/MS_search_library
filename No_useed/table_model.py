@@ -1,6 +1,6 @@
 
-from typing import Optional
-from sqlalchemy import ForeignKey, DateTime, BIGINT, TIMESTAMP
+from typing import Any, Optional
+from sqlalchemy import ForeignKey, BIGINT, TIMESTAMP
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -8,7 +8,6 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import datetime
-
 
 
 ##Declare Models
@@ -23,9 +22,9 @@ class Spectrum_data(Base):
     id:Mapped[int] = mapped_column(primary_key=True, autoincrement= True, unique=True,nullable=True)
     ms_level:Mapped[int] = mapped_column(nullable=True)
     compound_data_id:Mapped[int] = mapped_column(ForeignKey('compound_data.id'),nullable=True)
-    compound_data:Mapped["Compound_data"] = relationship(back_populates="spectrum_data")
+    # compound_data:Mapped["Compound_data"] = relationship(back_populates="spectrum_data")
     compound_classification_id:Mapped[int] = mapped_column(ForeignKey('compound_classification.id'),nullable=True)
-    compound_classification:Mapped["Compound_classification"] = relationship(back_populates="spectrum_data")
+    # compound_classification:Mapped["Compound_classification"] = relationship(back_populates="spectrum_data")
     author_id:Mapped[Optional[int]]
     precursor_mz:Mapped[float] = mapped_column(nullable=True)
     collision_energe:Mapped[float] = mapped_column(default=0,nullable=True)
@@ -40,8 +39,8 @@ class Spectrum_data(Base):
 
 class Compound_data(Base):
     __tablename__ = "compound_data"
-    spectrum_data:Mapped["Spectrum_data"] = relationship(back_populates="compound_data")
-    compound_classification:Mapped["Compound_classification"] = relationship(back_populates="compound_data")
+    # spectrum_data:Mapped["Spectrum_data"] = relationship(back_populates="compound_data")
+    # compound_classification:Mapped["Compound_classification"] = relationship(back_populates="compound_data")
     compound_classification_id = mapped_column(ForeignKey('compound_classification.id'),nullable=True)
     id:Mapped[int] = mapped_column(primary_key=True, autoincrement= True, unique=True,nullable=True)
     name:Mapped[str] = mapped_column(String(255),nullable=True)
@@ -58,8 +57,8 @@ class Compound_data(Base):
 
 class Compound_classification(Base):
     __tablename__ = "compound_classification"
-    spectrum_data:Mapped["Spectrum_data"]= relationship(back_populates="compound_classification")
-    compound_data:Mapped["Compound_data"] = relationship(back_populates="compound_classification")
+    # spectrum_data:Mapped["Spectrum_data"]= relationship(back_populates="compound_classification")
+    # compound_data:Mapped["Compound_data"] = relationship(back_populates="compound_classification")
     id:Mapped[int] = mapped_column(primary_key=True, autoincrement= True, unique=True,nullable=True)
     classification_kingdom:Mapped[str] = mapped_column(String(255),nullable=True)
     classification_superclass:Mapped[str] = mapped_column(String(255),nullable=True)
@@ -69,11 +68,8 @@ class Compound_classification(Base):
 
 
 
-Spectrum_data()
 
+spectrum_data = Spectrum_data()
 
-
-
-
-
+# request_data= request.get_json()
 
