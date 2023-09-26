@@ -22,7 +22,7 @@ class Spectrum_data(Base):
     ms_level:Mapped[int] = mapped_column(nullable=True)
     precursor_mz:Mapped[float] = mapped_column(nullable=True)
     exact_mass:Mapped[float] = mapped_column(nullable=True)
-    collision_energe:Mapped[float] = mapped_column(default=0.0,nullable=True)
+    collision_energe:Mapped[str] = mapped_column(String(100),default="0",nullable=True)
     mz_error:Mapped[float] = mapped_column(nullable=True)
     last_modify:Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.utcnow())
     date_created:Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.utcnow())
@@ -31,9 +31,9 @@ class Spectrum_data(Base):
     instrument:Mapped[str] = mapped_column(String(100),nullable=True)
     ion_mode:Mapped[str] = mapped_column(String(45),nullable=True)
     ms2_spectrum:Mapped[Optional[str]] = mapped_column(String(5000),nullable=True)
-    presursor_type:Mapped[str] = mapped_column(String(100),nullable=True)
+    precursor_type:Mapped[str] = mapped_column(String(100),nullable=True)
 
-    def __init__(self, ms_level:int, compound_data_id:int, compound_classification_id:int, precursor_mz:float, collision_energe:float, mz_error:float, data_source:str, tool_type:str, ion_mode:str, instrument:str, exact_mass:float, precursor_type:str) -> None:
+    def __init__(self, ms_level:int, compound_data_id:int, compound_classification_id:int, precursor_mz:float, collision_energe:float, mz_error:float, data_source:str, tool_type:str, ion_mode:str, instrument:str, exact_mass:float, precursor_type:str, ms2_spectrum="") -> None:
         self.ms_level = ms_level
         self.compound_data_id = compound_data_id
         self.compound_classification_id = compound_classification_id
@@ -47,7 +47,13 @@ class Spectrum_data(Base):
         self.ion_mode = ion_mode
         self.exact_mass = exact_mass
         self.precursor_type = precursor_type
+        self.ms2_spectrum = ms2_spectrum
     ##    self.ms2_spectrum = ms2_spectrum
+
+
+
+
+
         
         
 
