@@ -7,13 +7,7 @@ sys.path.insert(1, "./")
 import config
 
 ##  sql config
-url_object = URL.create(
-    config.DIALECT_DRIVER,
-    username=config.MYSQL_USER,
-    password=config.MYSQL_PASSWORD, 
-    host=config.MYSQL_HOST,
-    database=config.MYSQL_DATABASE,
-)
+
 
 
 
@@ -24,14 +18,24 @@ class Base(DeclarativeBase):
     }
 
 
-class Session_tool():
+class SQLALchemy_tool():
 
     def __init__(self):
-        self.base = Base
-        self.engine = create_engine(url_object)
+        self.url_object = self.create_config_obj()
+        self.base = Base()
+        self.engine = create_engine(self.url_object)
         self.base.metadata.create_all(self.engine)
         Session =sessionmaker(bind=self.engine)
         self.session = Session()
 
+    def create_config_obj(self):
+        url_object = URL.create(
+            config.DIALECT_DRIVER,
+            username=config.MYSQL_USER,
+            password=config.MYSQL_PASSWORD, 
+            host=config.MYSQL_HOST,
+            database=config.MYSQL_DATABASE,
+        )
+        return url_object
 
 

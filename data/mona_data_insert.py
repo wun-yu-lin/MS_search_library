@@ -6,14 +6,15 @@ from models.Compound_data_model import Compound_data
 from models.Compound_classification_model import Compound_classification
 
 ##Session_tool 我自己寫的class
-from models.Base_model import Session_tool
-session_tool = Session_tool()
-session = session_tool.session
+from models.Base_model import SQLALchemy_tool
+
+sql_alchemy_tool = SQLALchemy_tool()
+session = sql_alchemy_tool.session
 
 def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_classification_id) -> object:
     ms_level=None
     precursor_mz=None
-    collision_energe=None
+    collision_energy=None
     mz_error=None
     data_source=None
     tool_type=None
@@ -45,7 +46,7 @@ def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_class
                 if item_value =="negative": ion_mode = "negative"
 
             ##collision energy
-            if item_name == 'collision energy': collision_energe = str(item_value)
+            if item_name == 'collision energy': collision_energy = str(item_value)
 
             ##mz_error
             if item_name == 'mass error': mz_error = float(item_value)
@@ -76,7 +77,7 @@ def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_class
                     compound_data_id=compound_data_id,
                     compound_classification_id=compound_classification_id,
                     precursor_mz=precursor_mz,
-                    collision_energe=collision_energe,
+                    collision_energy=collision_energy,
                     mz_error=mz_error,
                     data_source=data_source,
                     tool_type=tool_type,
@@ -111,9 +112,14 @@ for item in results:
     print(item)
     if item == None:
         continue
-    session.add(item)
-    session.commit()
-    session.close()
+    try:
+        session.add(item)
+        session.commit()
+    except Exception as e:
+        print(e)
+        session.rollback()
+    finally:
+        session.close()
 
 
 
