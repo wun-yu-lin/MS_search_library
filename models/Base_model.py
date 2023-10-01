@@ -1,7 +1,7 @@
 
 from sqlalchemy import create_engine, URL
 ##資料型別
-from sqlalchemy.dialects.mysql import TEXT, DECIMAL, BIGINT, TIMESTAMP, VARCHAR,MEDIUMTEXT, LONGTEXT
+from sqlalchemy.dialects.mysql import TEXT, DECIMAL, BIGINT, TIMESTAMP, VARCHAR,MEDIUMTEXT, LONGTEXT, FLOAT
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.sql import func
 import datetime, sys
@@ -17,7 +17,8 @@ class Base(DeclarativeBase):
     type_annotation_map = {
         int: BIGINT,
         datetime.datetime: TIMESTAMP(timezone=True),
-        float: DECIMAL,
+        # float: DECIMAL,
+        float: FLOAT,
         TEXT: TEXT,
         str: VARCHAR,
         MEDIUMTEXT: MEDIUMTEXT,
