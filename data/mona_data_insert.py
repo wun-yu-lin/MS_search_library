@@ -1,6 +1,5 @@
 import sys,os,time
 sys.path.insert(1, "./")
-
 from models.Spectrum_data_model import Spectrum_data 
 from models.Compound_data_model import Compound_data
 from models.Compound_classification_model import Compound_classification
@@ -72,6 +71,7 @@ def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_class
 
 
 
+
         spectrum_data = Spectrum_data( 
                     ms_level=ms_level,
                     compound_data_id=compound_data_id,
@@ -85,7 +85,7 @@ def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_class
                     instrument=instrument,
                     exact_mass=exact_mass,
                     precursor_type=precursor_type,
-                    # ms2_spectrum = str(monadata_each_object["spectrum"])
+                    ms2_spectrum = monadata_each_object["spectrum"]
                 )
     except Exception as e:
         print(e)
@@ -93,52 +93,258 @@ def prepare_spectrum_data(monadata_each_object, compound_data_id, compound_class
     
     return spectrum_data
 
+def prepare_compound_data(compound_data_object,compound_classification_id:int=None) -> object:
+    name=None
+    inchi_key=None
+    inchi=None
+    formula=None
+    smile=None
+    cas=None
+    exact_mass=None
+    mole_file=None
+    kind=None
+    compound_arr = compound_data_object["compound"]
+    if len(compound_arr) > 1:
+        print("error")
+        print("compound arr length > 1")
+    compound_object = compound_arr[0]
+    kind = compound_object["kind"]
+    mole_file = compound_object["molFile"] 
+    
+    ##get compound name
+    name_arr =[]
+    for item in compound_object["names"]:
+        name_arr.append(item["name"])
+    name = str(name_arr)
+
+    ##get inchey key, formula, smile, cas, exact_mass, pubchem_id
+    for item in compound_object["metaData"]:
+        item_name = item["name"]
+        item_value = item["value"]
+        if item_name == "InChIKey": inchi_key = str(item_value)
+        if item_name == "InChI": inchi = str(item_value)
+        if item_name == "molecular formula": formula = str(item_value)
+        if item_name == "SMILES": smile = str(item_value)
+        if item_name == "cas": cas = str(item_value)
+        if item_name == "total exact mass": exact_mass = float(item_value)
+
+    compound_data = Compound_data(
+        compound_classification_id=compound_classification_id,
+        name=name,
+        inchi_key=inchi_key,
+        inchi=inchi,
+        formula=formula,
+        smile=smile,
+        cas=cas,
+        exact_mass=exact_mass,
+        mole_file=mole_file,
+        kind=kind
+    )
+    return compound_data
+
+def prepare_compound_classification(compound_data_object) -> object:
+    classification_kingdom=None
+    classification_superclass=None
+    classification_class=None
+    classification_subclas=None
+    classification_direct_parent=None
+
+    ##get classification arr 
+    compound_arr = compound_data_object["compound"]
+    if len(compound_arr) > 1:
+        print("error")
+        print("compound arr length > 1")
+    
+    classification_arr = compound_arr[0]["classification"]
+
+    for item in classification_arr:
+        item_name = item["name"]
+        item_value = item["value"]
+        if item_name == "kingdom": classification_kingdom = str(item_value)
+        if item_name == "superclass": classification_superclass = str(item_value)
+        if item_name == "class": classification_class = str(item_value)
+        if item_name == "subclass": classification_subclas = str(item_value)
+        if item_name == "direct parent": classification_direct_parent = str(item_value)
+
+    compound_classification = Compound_classification(
+        classification_kingdom=classification_kingdom,
+        classification_superclass=classification_superclass,
+        classification_class=classification_class,
+        classification_subclass=classification_subclas,
+        classification_direct_parent=classification_direct_parent
+    )
+    return compound_classification
+    
+
+def insertion_spectrum_data_into_db(file_url:str):
+    import json
+    #read json in disk mode
+    ##file_url = "./data/test.json"
+    results = []
+    with open(file_url, "r") as f:
+        monadata_each_object = json.load(f)
+        for item in monadata_each_object:
+            results.append(prepare_spectrum_data(item, 1,1))
+
+
+    for item in results:
+        if item == None:
+            continue
+        try:
+            session.add(item)
+            session.commit()
+        except Exception as e:
+            print(e)
+            session.rollback()
+        finally:
+            session.close()
+
+def insert_compound_classification_into_db(file_url:str):
+    import json
+    #read json in disk mode
+    ##file_url = "./data/test.json"
+    results = []
+    with open(file_url, "r") as f:
+        monadata_each_object = json.load(f)
+        for item in monadata_each_object:
+            results.append(prepare_compound_classification(item))
+
+
+        for item in results:
+            if item == None:
+                continue
+            try:
+                session.add(item)
+                session.commit()
+            except Exception as e:
+                print(e)
+                session.rollback()
+            finally:
+                session.close()
+
+def insert_compound_data_into_db(file_url:str):
+    import json
+    #read json in disk mode
+    ##file_url = "./data/test.json"
+    results = []
+    with open(file_url, "r") as f:
+        monadata_each_object = json.load(f)
+        for item in monadata_each_object:
+            try:
+                results.append(prepare_compound_data(item,0))
+            except Exception as e:
+                print(e)
+                continue
+
+
+        for item in results:
+            if item == None:
+                continue
+            try:
+                session.add(item)
+                session.commit()
+            except Exception as e:
+                print(e)
+                session.rollback()
+            finally:
+                session.close()
+
+
+def insert_mona_raw_data_into_db(file_url:str):
+    '''This function is used to insert mona raw data into db
+        currently, we only insert compound_classification, compound_data, spectrum_data table
+        table name: compound_classification -> compound_data -> spectrum_data
+    '''
+    import json
+    #read json in disk mode
+    ##file_url = "./data/test.json"
+    with open(file_url, "r") as f:
+        monadata_each_object = json.load(f)
+        for item in monadata_each_object:
+            spectrum_data = None
+            compound_data = None
+            current_compound_data_id =0
+            compound_classification = None
+            current_compound_classification_id =0
+
+            ##嘗試插入compound_classification 進入 database, 如有重複則跳過
+            try:
+                compound_classification = prepare_compound_classification(item)
+                ##直接查詢是否有重複的compound_classification
+                compound_classification_query_result =  session.query(Compound_classification).filter(
+                        Compound_classification.classification_kingdom == compound_classification.classification_kingdom,
+                        Compound_classification.classification_direct_parent == compound_classification.classification_direct_parent
+                        ).first()
+                ##如果沒有重複的compound_classification, 則插入, 並找到對應的id
+                if compound_classification_query_result==None:
+                    session.add(compound_classification)
+                    session.commit()
+                    compound_classification_query_result =  session.query(Compound_classification).filter(
+                        Compound_classification.classification_kingdom == compound_classification.classification_kingdom,
+                        Compound_classification.classification_direct_parent == compound_classification.classification_direct_parent
+                        ).first()
+                ##更新對應的id
+                current_compound_classification_id = compound_classification_query_result.id
+            except Exception as e:
+                print(e)
+                ##如果有錯誤, 則rollback
+                session.rollback()
+            finally:
+                session.close()
+
+            
+            ##取得 compound_classification_id 後, 嘗試插入 compound_data
+            try:
+                compound_data = prepare_compound_data(item,current_compound_classification_id)
+                ##直接查詢是否有重複的compound_data
+                compound_data_query_result =  session.query(Compound_data).filter(
+                        Compound_data.inchi_key == compound_data.inchi_key
+                        ).first()
+                ##如果沒有重複的compound data, 則插入, 並找到對應的id
+                if compound_data_query_result == None:
+                    session.add(compound_data)
+                    session.commit()
+                    compound_data_query_result =  session.query(Compound_data).filter(
+                        Compound_data.inchi_key == compound_data.inchi_key
+                        ).first()
+                ##更新對應的id
+                current_compound_data_id = compound_data_query_result.id
+            except Exception as e:
+                print(e)
+                ##如果有錯誤, 則rollback
+                session.rollback()
+            finally:
+                session.close()
+
+            ##嘗試插入specturm 進入 database
+            try:
+                spectrum_data = prepare_spectrum_data(
+                    monadata_each_object=item,
+                    compound_data_id=current_compound_data_id,
+                    compound_classification_id=current_compound_classification_id
+                )
+                session.add(spectrum_data)
+                session.commit()
+                # print("insertion 1 data complete")
+
+            except Exception as e:
+                print(e)
+                ##如果有錯誤, 則rollback
+                session.rollback()
+            finally:
+                session.close()
+
+            
+
+    print("total insertion complete, please check database")
 
 
 
-results = []
-import json
-#read json in disk mode
-file_url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
-##file_url = "./data/test.json"
-
-with open(file_url, "r") as f:
-    monadata_each_object = json.load(f)
-    for item in monadata_each_object:
-        results.append(prepare_spectrum_data(item, 1,1))
-
-
-for item in results:
-    print(item)
-    if item == None:
-        continue
-    try:
-        session.add(item)
-        session.commit()
-    except Exception as e:
-        print(e)
-        session.rollback()
-    finally:
-        session.close()
-
-
-
-# spectrum_data = Spectrum_data(
-#     ms_level=1,
-#     compound_data_id=1,
-#     compound_classification_id=1,
-#     precursor_mz=1,
-#     collision_energe=1,
-#     mz_error=1,
-#     data_source="1",
-#     tool_type="1",
-#     ion_mode="1",
-#     instrument="1",
-#     exact_mass=1,
-#     precursor_type="1",
-#     ms2_spectrum="1"
-# )
-
-# session.add(spectrum_data)
-# session.commit()
-# session.close()
+    
+url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
+##url = "./data/test_LCMS.json"
+##insertion_spectrum_data_into_db(file_url=url)
+##insert_compound_classification_into_db(file_url=url)
+##insert_compound_data_into_db(file_url=url)
+##result = session.query(Compound_data).filter(Compound_data.id == 10000000).all()
+insert_mona_raw_data_into_db(file_url=url)

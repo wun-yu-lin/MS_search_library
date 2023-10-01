@@ -14,12 +14,11 @@ class Compound_classification(Base):
     classification_superclass:Mapped[str] = mapped_column(String(255),nullable=True)
     classification_class:Mapped[str] = mapped_column(String(255),nullable=True)
     classification_subclass:Mapped[str] = mapped_column(String(255),nullable=True)
-    classification_direct_parent:Mapped[str] = mapped_column(String(255),nullable=True, unique=True)
-    def __init__(self, classification_kingdom, classification_superclass, classification_class, classification_sublass, classification_direct_parent) -> None:
+    classification_direct_parent:Mapped[str] = mapped_column(String(255),nullable=True, unique=True, index=True)
+    def __init__(self, classification_kingdom:str, classification_superclass:str, classification_class:str, classification_subclass:str, classification_direct_parent:str) -> None:
         self.classification_kingdom = classification_kingdom
         self.classification_superclass = classification_superclass
         self.classification_class = classification_class
-        self.classification_subclass = classification_sublass
-        self.classification_superclass = classification_superclass
+        self.classification_subclass = classification_subclass
         self.classification_direct_parent = classification_direct_parent
 
