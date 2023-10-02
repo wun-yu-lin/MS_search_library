@@ -354,9 +354,21 @@ def insert_mona_raw_data_into_db(file_url:str):
 
 
     
-url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
+# url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
 # url = "./data/test_LCMS.json"
 ##insertion_spectrum_data_into_db(file_url=url)
 ##insert_compound_classification_into_db(file_url=url)
 ##insert_compound_data_into_db(file_url=url)
+
+
+# class X():
+#     def __init__(self, a):
+#         self.a = 1
+
+# x = X(a=1)
+# print("x:",id(x))
+# print("x.a",id(x.a))
+# x.a = 2
+# print("x:",id(x))
+# print("x.a",id(x.a))
 
