@@ -342,15 +342,15 @@ def insert_mona_raw_data_into_db(file_url:str):
 
     
 url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
-insert_mona_raw_data_into_db(file_url=url)
 ##url = "./data/test_LCMS.json"
 ##insertion_spectrum_data_into_db(file_url=url)
 ##insert_compound_classification_into_db(file_url=url)
 ##insert_compound_data_into_db(file_url=url)
 ##result = session.query(Compound_data).filter(Compound_data.id == 10000000).all()
 
+insert_mona_raw_data_into_db(file_url=url)
 
-#insert files in directory
+# #insert files in directory
 
 import os
 import shutil
