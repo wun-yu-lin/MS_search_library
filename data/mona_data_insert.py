@@ -286,7 +286,6 @@ def insert_mona_raw_data_into_db(file_url:str):
                 ##更新對應的id
                 current_compound_classification_id = compound_classification_query_result.id
             except Exception as e:
-                print(e)
                 ##如果有錯誤, 則rollback
                 session.rollback()
             finally:
@@ -310,7 +309,7 @@ def insert_mona_raw_data_into_db(file_url:str):
                 ##更新對應的id
                 current_compound_data_id = compound_data_query_result.id
             except Exception as e:
-                print(e)
+
                 ##如果有錯誤, 則rollback
                 session.rollback()
             finally:
@@ -328,7 +327,6 @@ def insert_mona_raw_data_into_db(file_url:str):
                 # print("insertion 1 data complete")
 
             except Exception as e:
-                print(e)
                 ##如果有錯誤, 則rollback
                 session.rollback()
             finally:
@@ -373,8 +371,10 @@ sorted_file_paths = sorted(file_paths, key=lambda x: os.path.basename(x))
 for file_path in sorted_file_paths:
     # 假設你的寫入檔案的程式碼在這裡
     written_files.append(os.path.basename(file_path))
-    insert_mona_raw_data_into_db(file_url=file_path)
-
+    try:
+        insert_mona_raw_data_into_db(file_url=file_path)
+    except Exception as e:
+        continue
     source_file_path = os.path.join(directory_path, os.path.basename(file_path))
     destination_directory = os.path.join(output_directory_path, os.path.splitext(os.path.basename(file_path))[0])  # 使用檔案名稱（不含擴展名）作為目標資料夾
     # 創建目標資料夾
