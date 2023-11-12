@@ -342,9 +342,42 @@ def insert_mona_raw_data_into_db(file_url:str):
 
     
 url = "./data/MoNA-export-LC-MS-MS_Spectra.json"
+insert_mona_raw_data_into_db(file_url=url)
 ##url = "./data/test_LCMS.json"
 ##insertion_spectrum_data_into_db(file_url=url)
 ##insert_compound_classification_into_db(file_url=url)
 ##insert_compound_data_into_db(file_url=url)
 ##result = session.query(Compound_data).filter(Compound_data.id == 10000000).all()
-insert_mona_raw_data_into_db(file_url=url)
+
+
+#insert files in directory
+
+import os
+import shutil
+import glob
+
+directory_path = "/Users/linwunyu/Documents/GitHub/MS_search_engine/data/splitFile"
+output_directory_path = "/Users/linwunyu/Documents/GitHub/MS_search_engine/data/output"
+written_files = []
+
+
+# 使用 glob 匹配所有 JSON 檔案
+file_paths = glob.glob(os.path.join(directory_path, '*.json'))
+
+
+# file_paths = [os.path.join(directory_path, file) for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
+# file_paths = [os.path.join(directory_path, file) for file in os.listdir(directory_path)]
+# file_paths = [file for file in file_paths if os.path.isfile(file)]
+sorted_file_paths = sorted(file_paths, key=lambda x: os.path.basename(x))
+
+for file_path in sorted_file_paths:
+    # 假設你的寫入檔案的程式碼在這裡
+    written_files.append(os.path.basename(file_path))
+    insert_mona_raw_data_into_db(file_url=file_path)
+
+    source_file_path = os.path.join(directory_path, os.path.basename(file_path))
+    destination_directory = os.path.join(output_directory_path, os.path.splitext(os.path.basename(file_path))[0])  # 使用檔案名稱（不含擴展名）作為目標資料夾
+    # 創建目標資料夾
+    os.makedirs(destination_directory, exist_ok=True)
+    # 複製檔案到目標資料夾
+    shutil.copy(source_file_path, destination_directory)

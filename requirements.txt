@@ -20,6 +20,7 @@ future @ file:///System/Volumes/Data/SWE/Apps/DT/BuildRoots/BuildRoot2/ActiveBui
 h11==0.14.0
 httpcore==0.17.3
 idna==3.4
+ijson==3.2.3
 importlib-metadata==6.7.0
 importlib-resources==6.0.0
 itsdangerous==2.1.2
@@ -36,7 +37,9 @@ openpyxl==3.1.2
 packaging==23.1
 pandas==1.5.2
 Pillow==10.0.0
+powerline-status==2.7
 protobuf==4.21.12
+PyJWT==2.8.0
 pymongo==4.4.1
 PyMySQL==1.1.0
 pyparsing==3.0.9
