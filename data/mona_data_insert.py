@@ -354,8 +354,8 @@ import os
 import shutil
 import glob
 
-directory_path = "/Users/linwunyu/Documents/GitHub/MS_search_engine/data/splitFile"
-output_directory_path = "/Users/linwunyu/Documents/GitHub/MS_search_engine/data/output"
+directory_path = "./data/splitFile"
+output_directory_path = "./data/output"
 written_files = []
 
 
@@ -373,7 +373,9 @@ for file_path in sorted_file_paths:
     written_files.append(os.path.basename(file_path))
     try:
         insert_mona_raw_data_into_db(file_url=file_path)
+        print("Success file: {}".format(file_path))
     except Exception as e:
+        print("Failed file: {}".format(file_path))
         continue
     source_file_path = os.path.join(directory_path, os.path.basename(file_path))
     destination_directory = os.path.join(output_directory_path, os.path.splitext(os.path.basename(file_path))[0])  # 使用檔案名稱（不含擴展名）作為目標資料夾
