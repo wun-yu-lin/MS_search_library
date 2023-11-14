@@ -13,16 +13,16 @@ class Compound_data(Base):
     __tablename__ = "compound_data"
     ##compound_classification_id = mapped_column(ForeignKey('compound_classification.id'),nullable=True)
     compound_classification_id:Mapped[int] = mapped_column(index=True)
-    id:Mapped[int] = mapped_column(primary_key=True, autoincrement= True, unique=True,nullable=True)
-    name:Mapped[str] = mapped_column(String(760),nullable=True,default="undefined",index=True)
+    id:Mapped[int] = mapped_column(primary_key=True, autoincrement= True, unique=True)
+    name:Mapped[str] = mapped_column(String(760),index=True)
     inchi_key:Mapped[str] = mapped_column(String(50), index=True,unique=True)
     inchi:Mapped[str] = mapped_column(String(1000),nullable=True)
     formula:Mapped[str] = mapped_column(String(255), index=True)
-    smile:Mapped[str] = mapped_column(String(1000),nullable=True)
+    smile:Mapped[str] = mapped_column(String(1000))
     cas:Mapped[str] = mapped_column(String(255), index=True, nullable=True)
     exact_mass:Mapped[float] = mapped_column(index=True)
-    mole_file:Mapped[LONGTEXT] = mapped_column(nullable=True)
-    kind:Mapped[str] = mapped_column(String(255),nullable=True)
+    mole_file:Mapped[LONGTEXT] = mapped_column()
+    kind:Mapped[str] = mapped_column(String(255))
     # pubchem_id:Mapped[str] = mapped_column(String(255),nullable=True, unique=True, index=True)
 
 
